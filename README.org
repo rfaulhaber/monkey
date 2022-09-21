@@ -1,0 +1,11 @@
+#+TITLE: monkey
+
+Interpreter / compiler for the Monkey programming language.
+
+This repo is for tracking my progress according to [[https://interpreterbook.com/][Writing An Interpreter In Go]]
+and [[https://compilerbook.com/][Writing A Compiler In Go]].
+
+Unlike those books, however, this implementation will be written in Rust
+because... I prefer Rust. And I like a challenge.
+
+This is a personal project.
