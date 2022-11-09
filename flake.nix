@@ -3,22 +3,20 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    crane = {
-      url = "github:ipetkov/crane";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
-  outputs = { self, nixpkgs, flake-utils, crane }:
+  outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        craneLib = crane.lib.${system};
         projectName = "monkey";
       in {
-        packages.${projectName} =
-          craneLib.buildPackage { src = craneLib.cleanCargoSource ./.; };
-
+        packages.${projectName} = pkgs.rustPlatform.buildRustPackage {
+          pname = projectName;
+          version = "0.0.1";
+          src = ./.;
+          cargoLock.lockFile = ./Cargo.lock;
+        };
         packages.default = self.packages.${system}.${projectName};
 
         apps.${projectName} = {
