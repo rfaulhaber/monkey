@@ -10,7 +10,7 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         projectName = "monkey";
-      in {
+      in rec {
         packages.${projectName} = pkgs.rustPlatform.buildRustPackage {
           pname = projectName;
           version = "0.1.0";
@@ -20,12 +20,10 @@
 
         packages.default = self.packages.${system}.${projectName};
 
-        apps.${projectName} = {
-          type = "app";
-          program = "${self.packages."${system}".default}/bin/monkey";
-        };
+        apps.${projectName} =
+          flake-utils.lib.mkApp { drv = packages.${projectName}; };
 
-        apps.default = self.apps.${system}.monkey;
+        apps.default = self.apps.${system}.${projectName};
 
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
@@ -35,7 +33,6 @@
             clippy
             rust-analyzer
             rustup
-            crate2nix
           ];
         };
       });
