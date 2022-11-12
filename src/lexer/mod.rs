@@ -20,6 +20,12 @@ impl<'a> Lexer<'a> {
     }
 }
 
+impl<'a> From<&'a str> for Lexer<'a> {
+    fn from(s: &'a str) -> Self {
+        Lexer::new(s)
+    }
+}
+
 impl Iterator for Lexer<'_> {
     type Item = Token;
 
