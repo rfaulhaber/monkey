@@ -11,14 +11,11 @@
         pkgs = nixpkgs.legacyPackages.${system};
         projectName = "monkey";
       in {
-        packages.${projectName} = pkgs.rustPlatform.buildRustPackage rec {
+        packages.${projectName} = pkgs.rustPlatform.buildRustPackage {
           pname = projectName;
           version = "0.1.0";
           src = ./.;
-          # cargoLock.lockFile = ./Cargo.lock;
-
-          cargoLock = { lockFile = ./Cargo.lock; };
-
+          cargoLock.lockFile = ./Cargo.lock;
         };
 
         packages.default = self.packages.${system}.${projectName};
