@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(super) struct WordIter<'a> {
     input: &'a str,
     pos: usize,

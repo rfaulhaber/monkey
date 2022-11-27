@@ -1,11 +1,18 @@
-pub trait Node {
-    fn literal(&self) -> &str;
+// TODO track tokens, source info
+
+pub type Program = Vec<Stmt>;
+
+#[derive(Debug, Clone)]
+pub enum Stmt {
+    Let { name: Identifier, expr: Box<Expr> },
 }
 
-pub trait Statement: Node {
-    fn statement_node(&self);
+#[derive(Debug, Clone)]
+pub enum Expr {
+    Ident(Identifier),
 }
 
-pub trait Expression: Node {
-    fn expression_node(&self);
+#[derive(Debug, Clone)]
+pub struct Identifier {
+    pub(super) value: String,
 }

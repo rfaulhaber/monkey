@@ -5,7 +5,7 @@ use word_iter::WordIter;
 
 pub use token::Token;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Lexer<'a> {
     input: &'a str,
     word_iter: WordIter<'a>,
