@@ -10,7 +10,19 @@ macro_rules! assert_next_token {
             _ => Err(ParseError::UnexpectedEndOfInput),
         }
     };
+    ($lexer:expr, $tok:path, $expected:expr) => {
+        match $lexer.next() {
+            Some($tok) => Ok(()),
+            Some(u) => Err(ParseError::UnexpectedTokenFound {
+                expected: $expected.to_string(),
+                found: u.to_string(),
+            }),
+            _ => Err(ParseError::UnexpectedEndOfInput),
+        }
+    };
 }
+
+type ParseResult<T> = Result<T, ParseError>;
 
 #[derive(Debug)]
 pub struct Parser<'a> {
@@ -36,7 +48,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub fn parse(mut self) -> Result<Program, ParseError> {
+    pub fn parse(mut self) -> ParseResult<Program> {
         while let Some(token) = self.lexer.next() {
             match token {
                 Token::Let => self.parse_let()?,
@@ -47,10 +59,10 @@ impl<'a> Parser<'a> {
         Ok(self.program)
     }
 
-    fn parse_let(&mut self) -> Result<(), ParseError> {
+    fn parse_let(&mut self) -> ParseResult<()> {
         let ident = self.parse_ident()?;
 
-        assert_next_token!(self.lexer, Token::Eq)?;
+        assert_next_token!(self.lexer, Token::Assign)?;
 
         let expr = self.parse_expr()?;
 
@@ -62,15 +74,15 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    fn parse_expr(&mut self) -> Result<Expr, ParseError> {
+    fn parse_expr(&mut self) -> ParseResult<Expr> {
         // match self.lexer.next() {
-        //     Some(Token::Int(n)) =>
+        //     Some(Token::Int(n)) => if let Some(Token::Semicolon) = self.lexer.iter().peek() {},
         // }
 
         todo!();
     }
 
-    fn parse_ident(&mut self) -> Result<Identifier, ParseError> {
+    fn parse_ident(&mut self) -> ParseResult<Identifier> {
         match self.lexer.next() {
             Some(Token::Identifier(ident)) => Ok(Identifier { value: ident }),
             Some(u) => {

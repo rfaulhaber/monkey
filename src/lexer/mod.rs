@@ -8,15 +8,21 @@ pub use token::Token;
 #[derive(Debug, Clone)]
 pub struct Lexer<'a> {
     input: &'a str,
-    word_iter: WordIter<'a>,
+    words: Vec<String>,
+    index: usize,
 }
 
 impl<'a> Lexer<'a> {
     pub fn new(input: &'a str) -> Lexer<'a> {
         Lexer {
             input,
-            word_iter: WordIter::new(input),
+            words: WordIter::new(input).collect(),
+            index: 0,
         }
+    }
+
+    pub(crate) fn peek(&self) -> Option<Token> {
+        self.words.get(self.index).map(|s| lex_token(s)).or(None)
     }
 }
 
@@ -30,36 +36,44 @@ impl Iterator for Lexer<'_> {
     type Item = Token;
 
     fn next(&mut self) -> Option<Self::Item> {
-        match self.word_iter.next() {
-            Some(s) => Some(match s.as_str() {
-                "let" => Token::Let,
-                "fn" => Token::Fn,
-                "return" => Token::Return,
-                "true" => Token::True,
-                "false" => Token::False,
-                "if" => Token::If,
-                "else" => Token::Else,
-                "{" => Token::Lbrace,
-                "}" => Token::Rbrace,
-                "(" => Token::Lparen,
-                ")" => Token::Rparen,
-                "+" => Token::Plus,
-                ";" => Token::Semicolon,
-                "," => Token::Comma,
-                "=" => Token::Assign,
-                "-" => Token::Minus,
-                "!" => Token::Bang,
-                "*" => Token::Asterisk,
-                "/" => Token::Slash,
-                "<" => Token::Lt,
-                ">" => Token::Gt,
-                "!=" => Token::Neq,
-                "==" => Token::Eq,
-                s if parse_number(s).is_some() => Token::Int(parse_number(s).unwrap()), // TODO do better
-                s => Token::Identifier(s.to_string()),
-            }),
-            None => None,
+        match self.words.get(self.index) {
+            Some(s) => {
+                let tok = lex_token(s);
+                self.index = self.index + 1;
+                Some(tok)
+            }
+            _ => None,
         }
+    }
+}
+
+fn lex_token(s: &str) -> Token {
+    match s {
+        "let" => Token::Let,
+        "fn" => Token::Fn,
+        "return" => Token::Return,
+        "true" => Token::True,
+        "false" => Token::False,
+        "if" => Token::If,
+        "else" => Token::Else,
+        "{" => Token::Lbrace,
+        "}" => Token::Rbrace,
+        "(" => Token::Lparen,
+        ")" => Token::Rparen,
+        "+" => Token::Plus,
+        ";" => Token::Semicolon,
+        "," => Token::Comma,
+        "=" => Token::Assign,
+        "-" => Token::Minus,
+        "!" => Token::Bang,
+        "*" => Token::Asterisk,
+        "/" => Token::Slash,
+        "<" => Token::Lt,
+        ">" => Token::Gt,
+        "!=" => Token::Neq,
+        "==" => Token::Eq,
+        s if parse_number(s).is_some() => Token::Int(parse_number(s).unwrap()), // TODO do better
+        s => Token::Identifier(s.to_string()),
     }
 }
 
@@ -191,5 +205,18 @@ if (5 < 10) {
         let result: Vec<Token> = Lexer::new(input).into_iter().collect();
 
         assert_eq!(output, result);
+    }
+
+    #[test]
+    fn peek_test() {
+        let input = "let x = 5;";
+
+        let mut lexer = Lexer::new(input);
+
+        assert_eq!(lexer.peek(), Some(Token::Let));
+
+        let _ = lexer.next();
+
+        assert_eq!(lexer.peek(), Some(Token::Identifier("x".into())));
     }
 }
