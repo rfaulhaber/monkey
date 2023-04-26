@@ -60,6 +60,7 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_let(&mut self) -> ParseResult<()> {
+        println!("parsing let");
         let ident = self.parse_ident()?;
 
         assert_next_token!(self.lexer, Token::Assign)?;
@@ -75,9 +76,26 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_expr(&mut self) -> ParseResult<Expr> {
-        // match self.lexer.next() {
-        //     Some(Token::Int(n)) => if let Some(Token::Semicolon) = self.lexer.iter().peek() {},
-        // }
+        match self.lexer.next() {
+            Some(Token::Int(n)) => {
+                if let Some(Token::Semicolon) = self.lexer.peek() {
+                    let ret = Ok(Expr::Integer(n));
+                    self.lexer.next();
+                    return ret;
+                } else {
+                    return Err(ParseError::UnexpectedTokenFound {
+                        expected: "semicolon".to_owned(),
+                        found: self
+                            .lexer
+                            .peek()
+                            .map(|v| v.to_string())
+                            .unwrap_or("end of input".to_string()),
+                    });
+                }
+            }
+            _ => todo!(),
+            None => todo!(),
+        }
 
         todo!();
     }
