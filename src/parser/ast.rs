@@ -5,6 +5,7 @@ pub type Program = Vec<Stmt>;
 #[derive(Debug, Clone, PartialEq)]
 pub enum Stmt {
     Let { name: Identifier, expr: Box<Expr> },
+    Return(Box<Expr>),
 }
 
 #[derive(Debug, Clone, PartialEq)]

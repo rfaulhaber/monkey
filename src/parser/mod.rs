@@ -62,4 +62,21 @@ let 838383";
 
         assert!(matches!(program_op, Err(_)));
     }
+
+    #[test]
+    fn parse_return_statements() {
+        let input = "return 5;
+return 10;
+return 993322;";
+
+        let program_op = Parser::from(input).parse();
+
+        let expected = vec![
+            Stmt::Return(Box::new(Expr::Integer(5))),
+            Stmt::Return(Box::new(Expr::Integer(10))),
+            Stmt::Return(Box::new(Expr::Integer(993322))),
+        ];
+
+        assert_eq!(expected, program_op.unwrap());
+    }
 }

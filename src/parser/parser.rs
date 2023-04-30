@@ -49,9 +49,11 @@ impl<'a> Parser<'a> {
     }
 
     pub fn parse(mut self) -> ParseResult<Program> {
+        // TODO rewrite to map
         while let Some(token) = self.lexer.next() {
             match token {
                 Token::Let => self.parse_let()?,
+                Token::Return => self.parse_return()?,
                 _ => todo!(),
             }
         }
@@ -60,44 +62,39 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_let(&mut self) -> ParseResult<()> {
-        println!("parsing let");
         let ident = self.parse_ident()?;
 
         assert_next_token!(self.lexer, Token::Assign)?;
 
         let expr = self.parse_expr()?;
 
+        // TODO this sucks do better
         self.program.push(Stmt::Let {
             name: ident,
             expr: Box::new(expr),
         });
+
+        assert_next_token!(self.lexer, Token::Semicolon)?;
+
+        Ok(())
+    }
+
+    fn parse_return(&mut self) -> ParseResult<()> {
+        let expr = self.parse_expr()?;
+
+        assert_next_token!(self.lexer, Token::Semicolon)?;
+
+        self.program.push(Stmt::Return(Box::new(expr)));
 
         Ok(())
     }
 
     fn parse_expr(&mut self) -> ParseResult<Expr> {
         match self.lexer.next() {
-            Some(Token::Int(n)) => {
-                if let Some(Token::Semicolon) = self.lexer.peek() {
-                    let ret = Ok(Expr::Integer(n));
-                    self.lexer.next();
-                    return ret;
-                } else {
-                    return Err(ParseError::UnexpectedTokenFound {
-                        expected: "semicolon".to_owned(),
-                        found: self
-                            .lexer
-                            .peek()
-                            .map(|v| v.to_string())
-                            .unwrap_or("end of input".to_string()),
-                    });
-                }
-            }
+            Some(Token::Int(n)) => Ok(Expr::Integer(n)),
             _ => todo!(),
             None => todo!(),
         }
-
-        todo!();
     }
 
     fn parse_ident(&mut self) -> ParseResult<Identifier> {
