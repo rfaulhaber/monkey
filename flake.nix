@@ -33,7 +33,11 @@
             clippy
             rust-analyzer
             rustup
-          ];
+          ] ++ (if system == "aarch64-darwin" then
+            [
+              # at the moment, cargo cannot build this on macOS without this package
+              libiconv
+            ] else []);
         };
       });
 }

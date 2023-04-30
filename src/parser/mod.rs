@@ -79,4 +79,17 @@ return 993322;";
 
         assert_eq!(expected, program_op.unwrap());
     }
+
+    #[test]
+    fn parse_identifier_expr_stmt() {
+        let input = "foobar;";
+
+        let expected = vec![
+            Stmt::Expr(Box::new(Expr::Identifier(Identifier { value: "foobar".into() })))
+        ];
+
+        let program = Parser::from(input).parse().unwrap();
+
+        assert_eq!(expected, program);
+    }
 }

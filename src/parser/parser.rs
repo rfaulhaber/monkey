@@ -1,4 +1,4 @@
-use super::ast::{Expr, Identifier, Program, Stmt};
+use super::ast::{Expr, Identifier, Program, Stmt, OperatorPrecedence};
 use crate::lexer::{Lexer, Token};
 use thiserror::Error;
 
@@ -54,7 +54,7 @@ impl<'a> Parser<'a> {
             match token {
                 Token::Let => self.parse_let()?,
                 Token::Return => self.parse_return()?,
-                _ => todo!(),
+                _ => self.parse_expr_stmt(token, OperatorPrecedence::Lowest)?,
             }
         }
 
@@ -85,6 +85,28 @@ impl<'a> Parser<'a> {
         assert_next_token!(self.lexer, Token::Semicolon)?;
 
         self.program.push(Stmt::Return(Box::new(expr)));
+
+        Ok(())
+    }
+
+    fn parse_infix_expr(&mut self, expr: Expr) -> ParseResult<Expr> {
+        todo!();
+    }
+
+    fn parse_prefix_expr(&mut self, token: Token) -> ParseResult<Expr> {
+        match token {
+            Token::Identifier(s) => Ok(Expr::Identifier(Identifier { value: s.into() })),
+            _ => todo!(),
+        }
+    }
+
+    fn parse_expr_stmt(&mut self, token: Token, prec: OperatorPrecedence) -> ParseResult<()> {
+        println!("parsing expr stmt");
+        let left_expr = self.parse_prefix_expr(token)?;
+
+        assert_next_token!(self.lexer, Token::Semicolon)?;
+
+        self.program.push(Stmt::Expr(Box::new(left_expr)));
 
         Ok(())
     }
