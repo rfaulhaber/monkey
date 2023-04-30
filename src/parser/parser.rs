@@ -96,6 +96,7 @@ impl<'a> Parser<'a> {
     fn parse_prefix_expr(&mut self, token: Token) -> ParseResult<Expr> {
         match token {
             Token::Identifier(s) => Ok(Expr::Identifier(Identifier { value: s.into() })),
+            Token::Int(n) => Ok(Expr::Integer(n)),
             _ => todo!(),
         }
     }

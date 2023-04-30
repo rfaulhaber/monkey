@@ -92,4 +92,17 @@ return 993322;";
 
         assert_eq!(expected, program);
     }
+
+    #[test]
+    fn parse_integer_expr_stmt() {
+        let input = "5;";
+
+        let expected = vec![
+            Stmt::Expr(Box::new(Expr::Integer(5))),
+        ];
+
+        let program = Parser::from(input).parse().unwrap();
+
+        assert_eq!(expected, program);
+    }
 }
